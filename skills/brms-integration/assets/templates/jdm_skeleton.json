@@ -1,0 +1,71 @@
+{
+  "name": "{{RULESET_NAME}}",
+  "nodes": [
+    {
+      "id": "{{NODE_ID_INPUT}}",
+      "type": "inputNode",
+      "name": "Request",
+      "position": { "x": 100, "y": 100 },
+      "content": {
+        "schema": {
+          "{{INPUT_FIELD_1}}": "number",
+          "{{INPUT_FIELD_2}}": "number"
+        }
+      }
+    },
+    {
+      "id": "{{NODE_ID_TABLE}}",
+      "type": "decisionTableNode",
+      "name": "Decision Table",
+      "position": { "x": 400, "y": 100 },
+      "content": {
+        "hitPolicy": "{{HIT_POLICY}}",
+        "inputs": [
+          { "id": "in1", "name": "{{INPUT_FIELD_1}}", "field": "{{INPUT_FIELD_1}}" },
+          { "id": "in2", "name": "{{INPUT_FIELD_2}}", "field": "{{INPUT_FIELD_2}}" }
+        ],
+        "outputs": [
+          { "id": "out1", "name": "{{OUTPUT_FIELD_1}}", "field": "{{OUTPUT_FIELD_1}}" },
+          { "id": "out2", "name": "{{OUTPUT_FIELD_2}}", "field": "{{OUTPUT_FIELD_2}}" }
+        ],
+        "rules": [
+          {
+            "_id": "r1",
+            "in1": "> 9",
+            "in2": "",
+            "out1": "\"PCT_ADD\"",
+            "out2": "2"
+          },
+          {
+            "_id": "r2",
+            "in1": "[3, 9]",
+            "in2": "< 100000",
+            "out1": "\"FLAT_ADD\"",
+            "out2": "0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "{{NODE_ID_OUTPUT}}",
+      "type": "outputNode",
+      "name": "Response",
+      "position": { "x": 700, "y": 100 },
+      "content": ""
+    }
+  ],
+  "edges": [
+    {
+      "id": "{{EDGE_ID_1}}",
+      "sourceId": "{{NODE_ID_INPUT}}",
+      "targetId": "{{NODE_ID_TABLE}}",
+      "type": "edge"
+    },
+    {
+      "id": "{{EDGE_ID_2}}",
+      "sourceId": "{{NODE_ID_TABLE}}",
+      "targetId": "{{NODE_ID_OUTPUT}}",
+      "type": "edge"
+    }
+  ]
+}
