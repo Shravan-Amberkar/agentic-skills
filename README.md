@@ -26,6 +26,7 @@ service scaffolding, schema review, Kafka consumers, CI, observability, and inci
 | [`fastapi-service-scaffold`](skills/fastapi-service-scaffold) | Production FastAPI service: app factory, async SQLAlchemy, health, metrics, tests. |
 | [`notification-gateway`](skills/notification-gateway) | Send/integrate/migrate/troubleshoot a multi-channel notification gateway (email/SMS/WhatsApp/OTP). |
 | [`brms-integration`](skills/brms-integration) | Adopt a BRMS (GoRules Zen Engine): identify rule candidates, build rulesets, integrate the eval API. |
+| [`diverge-converge`](skills/diverge-converge) | Guilford-style brainstorm → evaluate: isolated personas diverge, kill gates + weighted rubric converge on ONE winner and a blueprint. A stdlib script does all the scoring arithmetic. |
 
 ## Install
 

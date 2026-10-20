@@ -1,0 +1,249 @@
+{
+  "gates": {
+    "constraint": {
+      "instructions": "Read `frame`. Does {item} violate a HARD constraint stated in `frame` — the time window, the team size, a required technology, the budget, or a stated invariant? Judge only against constraints the frame states explicitly. A constraint that is merely difficult is not violated; a constraint that cannot be met as written is.",
+      "criteria": {
+        "true": "It violates at least one hard constraint stated in `frame`.",
+        "false": "It respects every hard constraint stated in `frame`."
+      }
+    },
+    "anti_goal": {
+      "instructions": "Read `anti_goals`. Is {item} PRIMARILY one of the listed anti-goals? Judge the centre of the idea, not an incidental feature: an idea that happens to contain a listed pattern as one small part is not primarily that pattern.",
+      "criteria": {
+        "true": "Its core mechanism is one of the listed anti-goals.",
+        "false": "Its core mechanism is something other than the listed anti-goals."
+      }
+    },
+    "demo": {
+      "instructions": "Read the time window in `frame`. Would {item} FAIL to produce a working, demonstrable result inside that window — something a person could run end to end and watch work, not a design document or a partial component? If `frame` states no time window, answer false.",
+      "criteria": {
+        "true": "No working, demonstrable result is reachable within the stated window.",
+        "false": "A working, demonstrable result is reachable within the stated window, or no window is stated."
+      }
+    },
+    "checkpoint": {
+      "instructions": "Read the time window in `frame`. Would {item} FAIL to reach a first decision checkpoint inside that window — a point producing evidence that it works or that it should stop? If `frame` states no time window, answer false.",
+      "criteria": {
+        "true": "No decision checkpoint producing real evidence is reachable within the stated window.",
+        "false": "A decision checkpoint producing real evidence is reachable within the stated window, or no window is stated."
+      }
+    },
+    "access": {
+      "instructions": "Does {item} depend on data, system access, partnerships or permissions that the team described in `frame` cannot realistically obtain? Judge obtainability for THIS team, not in principle.",
+      "criteria": {
+        "true": "It depends on data, access or partners the team cannot realistically obtain.",
+        "false": "Everything it depends on is obtainable by this team."
+      }
+    }
+  },
+
+  "triage": {
+    "instructions": "How promising is {item} as an answer to `frame`, weighing depth, robustness and feasibility together, as judged by {evaluator}?",
+    "criteria": [
+      "Not worth pursuing: it does not answer the frame, or it is a restatement of the problem.",
+      "Weak: it answers the frame only partially, or its mechanism is unlikely to hold up.",
+      "Plausible: it answers the frame and the mechanism is credible, but nothing about it stands out.",
+      "Strong: it answers the frame well, the mechanism is sound, and at least one aspect is notably good.",
+      "Outstanding: it answers the frame convincingly, the mechanism is sound and well chosen, and it would be hard to improve on within the constraints."
+    ]
+  },
+
+  "profiles": {
+    "agentic-software": {
+      "evaluator": "a senior engineering director evaluating a GitHub submission",
+      "tiebreak": "buildability",
+      "gates": ["constraint", "anti_goal", "demo", "access"],
+      "vectors": {
+        "signal": {
+          "weight": 0.40,
+          "instructions": "Judge the engineering depth of {item}: does it carry explicit state, real orchestration across steps, and verification of its own output — or is it a single model call wearing an interface?",
+          "criteria": [
+            "Fluff: an LLM call with a UI around it.",
+            "Thin: one loop, no verification of the output.",
+            "Moderate: a stateful loop, but verification is weak or implicit.",
+            "Strong: stateful, verified, and able to correct itself on failure.",
+            "Exceptional: a deterministic envelope around non-deterministic agents, verified at every step."
+          ]
+        },
+        "resilience": {
+          "weight": 0.30,
+          "instructions": "Judge how {item} behaves under hostile reality: unstructured input, malformed or failing API responses, timeouts, and prompt injection carried in data it processes.",
+          "criteria": [
+            "Assumes the happy path throughout.",
+            "Handles errors only where they are convenient to handle.",
+            "Handles common failures, but untrusted input is still treated as trusted.",
+            "Handles failure and timeout paths, and separates untrusted data from instructions.",
+            "Degrades safely under every named failure, with an explicit trust boundary and a bounded blast radius."
+          ]
+        },
+        "buildability": {
+          "weight": 0.30,
+          "instructions": "Judge whether the team in `frame` could actually build {item} to a demonstrable state inside the stated constraints.",
+          "criteria": [
+            "Not buildable by this team in this window.",
+            "Buildable only by cutting the parts that make it interesting.",
+            "Buildable, but the window leaves no room for anything going wrong.",
+            "Comfortably buildable with slack for iteration.",
+            "Buildable quickly, leaving most of the window for depth."
+          ]
+        }
+      }
+    },
+
+    "product": {
+      "evaluator": "a seed-stage venture partner",
+      "tiebreak": "pain",
+      "gates": ["constraint", "anti_goal", "demo", "access"],
+      "vectors": {
+        "pain": {
+          "weight": 0.35,
+          "instructions": "How acute is the problem {item} addresses for the user named in it — is this something they already spend money, time or worry on?",
+          "criteria": [
+            "No evident pain: a solution looking for a problem.",
+            "Mild annoyance: real but tolerated indefinitely.",
+            "Recognised problem: people complain, few act.",
+            "Acute: people already spend money or meaningful time on workarounds.",
+            "Urgent: it blocks something the user must do, and they are actively shopping for a fix."
+          ]
+        },
+        "differentiation": {
+          "weight": 0.25,
+          "instructions": "How hard would it be for an existing incumbent or a fast follower to copy {item} once it is visible?",
+          "criteria": [
+            "Trivially copied; no distinct insight.",
+            "Mostly a feature an incumbent would ship in a quarter.",
+            "Some distinct insight, but no durable barrier.",
+            "A real insight others have not acted on, with some accumulating advantage.",
+            "A structural advantage that strengthens with use and is costly to replicate."
+          ]
+        },
+        "reachability": {
+          "weight": 0.20,
+          "instructions": "How plausibly can the team reach its first ten real users for {item} without a budget or an existing audience?",
+          "criteria": [
+            "No identifiable channel to the first user.",
+            "A channel exists but requires budget or introductions the team lacks.",
+            "Reachable with effort through general channels.",
+            "A specific, named channel where these users already gather.",
+            "The team can reach the first ten users this week through existing relationships."
+          ]
+        },
+        "validation": {
+          "weight": 0.20,
+          "instructions": "How cheaply and quickly could the riskiest assumption behind {item} be tested before building it?",
+          "criteria": [
+            "The only test is building the whole thing.",
+            "Testing requires most of the build.",
+            "Testable with a substantial prototype.",
+            "Testable in days with a thin artefact.",
+            "Testable this week with conversations or a landing page, before any code."
+          ]
+        }
+      }
+    },
+
+    "architecture": {
+      "evaluator": "a principal engineer in a design review",
+      "tiebreak": "simplicity",
+      "gates": ["constraint", "anti_goal", "demo", "access"],
+      "vectors": {
+        "simplicity": {
+          "weight": 0.35,
+          "instructions": "Judge the number of moving parts {item} introduces, and how much a new engineer must hold in their head to change it safely.",
+          "criteria": [
+            "Very complex: many new components and non-obvious interactions.",
+            "Complex: several new components, with coupling that is hard to reason about.",
+            "Moderate: a manageable number of parts with clear responsibilities.",
+            "Simple: few parts, each with one job, composed in an obvious way.",
+            "Trivially simple: it removes moving parts rather than adding them."
+          ]
+        },
+        "isolation": {
+          "weight": 0.25,
+          "instructions": "If one component of {item} fails or degrades, how far does the damage spread?",
+          "criteria": [
+            "Any single failure takes the whole system down.",
+            "Failures spread across unrelated features.",
+            "Failures are contained to a subsystem, but recovery is manual.",
+            "Failures are contained and the system degrades gracefully.",
+            "Failures are contained, self-healing, and invisible to the user path that does not depend on them."
+          ]
+        },
+        "load": {
+          "weight": 0.20,
+          "instructions": "How does {item} behave at ten times the load described in `frame`?",
+          "criteria": [
+            "Breaks well before 10x and the fix is a redesign.",
+            "Needs significant rework to reach 10x.",
+            "Reaches 10x with tuning and more hardware.",
+            "Reaches 10x by scaling out, with a known bottleneck that is addressable.",
+            "Reaches 10x with no structural change; the scaling path is explicit."
+          ]
+        },
+        "reversibility": {
+          "weight": 0.20,
+          "instructions": "If {item} turns out to be the wrong choice in six months, how costly is it to back out?",
+          "criteria": [
+            "Effectively permanent; backing out means a rewrite.",
+            "Expensive to reverse; data and contracts would have to migrate.",
+            "Reversible with a planned migration.",
+            "Reversible behind an interface, with limited blast radius.",
+            "Trivially reversible: it can be switched off without touching callers."
+          ]
+        }
+      }
+    },
+
+    "strategy": {
+      "evaluator": "a board member",
+      "tiebreak": "reversibility",
+      "gates": ["constraint", "anti_goal", "checkpoint", "access"],
+      "vectors": {
+        "upside": {
+          "weight": 0.30,
+          "instructions": "If {item} works as intended, how materially does it change the position of the organisation described in `frame`?",
+          "criteria": [
+            "Negligible even if it fully succeeds.",
+            "A marginal improvement to an existing line.",
+            "A meaningful improvement to an existing line.",
+            "Opens a new line or materially changes the cost base.",
+            "Changes what the organisation is, not only what it earns."
+          ]
+        },
+        "defensibility": {
+          "weight": 0.25,
+          "instructions": "If {item} succeeds visibly, what stops a better-resourced competitor from taking the position?",
+          "criteria": [
+            "Nothing: success invites immediate replication.",
+            "A short head start only.",
+            "Some switching cost or know-how, but no durable moat.",
+            "A real barrier: data, relationships, regulation or scale economics.",
+            "A compounding barrier that widens with every customer."
+          ]
+        },
+        "execution": {
+          "weight": 0.25,
+          "instructions": "Can the organisation described in `frame` actually execute {item} with the people and capabilities it has or can hire?",
+          "criteria": [
+            "Requires capabilities the organisation has no path to.",
+            "Requires substantial hiring or acquisition before starting.",
+            "Executable, but it stretches the current team.",
+            "Within current capability with focused effort.",
+            "Plays directly to capabilities the organisation already has."
+          ]
+        },
+        "reversibility": {
+          "weight": 0.20,
+          "instructions": "If {item} proves wrong, how much is lost and how easily can the organisation step back?",
+          "criteria": [
+            "A one-way door: failure is existential or unwindable.",
+            "Costly to unwind, with lasting commitments.",
+            "Unwindable with a real write-off.",
+            "Unwindable with limited loss; commitments are staged.",
+            "Cheap to stop at any point; each stage is independently valuable."
+          ]
+        }
+      }
+    }
+  }
+}
