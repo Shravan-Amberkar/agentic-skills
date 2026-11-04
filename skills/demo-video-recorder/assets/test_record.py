@@ -53,6 +53,23 @@ class Validate(unittest.TestCase):
         record.load_script(Path(__file__).resolve().parent / "example-script.json")
 
 
+class Target(unittest.TestCase):
+    def test_default_is_two_minutes(self):
+        self.assertEqual(record.validate(script())["target_seconds"], 120)
+
+    def test_custom_and_invalid_targets(self):
+        self.assertEqual(record.validate(script(target_seconds=45))["target_seconds"], 45)
+        for bad in (0, -5, "60", True):
+            with self.assertRaises(record.ScriptError, msg=bad):
+                record.validate(script(target_seconds=bad))
+
+    def test_fit_messages(self):
+        self.assertTrue(record.fit(125, 120).startswith("on target"))
+        self.assertIn("OVER target by 30s", record.fit(150, 120))
+        self.assertIn("cut ~78 words", record.fit(150, 120))
+        self.assertIn("UNDER target", record.fit(30, 60))
+
+
 class Ffmpeg(unittest.TestCase):
     def test_trims_video_and_places_clips(self):
         args = record.ffmpeg_args(Path("v.webm"), [(Path("a.wav"), 0.0), (Path("b.wav"), 7.25)], 1.5, 20.0, Path("o.mp4"))

@@ -1,6 +1,6 @@
 ---
 name: demo-video-recorder
-description: Record a narrated demo / walkthrough video of a running web app, fully offline. Writes a step script (narration line + caption + browser actions per step), voices it with the Kokoro neural TTS model (Apache-2.0, runs locally), drives Chromium with Playwright, and muxes an MP4 with ffmpeg where each voice clip starts exactly when its step does. Includes a timing check to hit a target length (e.g. 2 minutes) before recording, and per-step frame capture so the agent can verify what was on screen. Use when asked to "make a demo video", "record a walkthrough / screen recording with voiceover", "2-minute product demo", "narrated video of this app", or to re-record a demo after UI changes. Not for editing existing footage, desktop (non-browser) apps, or cloud TTS voices.
+description: Record a narrated demo / walkthrough video of a running web app, fully offline. Writes a step script (narration line + caption + browser actions per step), voices it with the Kokoro neural TTS model (Apache-2.0, runs locally), drives Chromium with Playwright, and muxes an MP4 with ffmpeg where each voice clip starts exactly when its step does. Length is chosen per project (default 2 minutes; 30-second teasers to 5-minute walkthroughs) and a timing check fits the script to it before recording, and per-step frame capture so the agent can verify what was on screen. Use when asked to "make a demo video", "record a walkthrough / screen recording with voiceover", "2-minute product demo", "narrated video of this app", or to re-record a demo after UI changes. Not for editing existing footage, desktop (non-browser) apps, or cloud TTS voices.
 license: MIT
 x-spec-version: "1.0"
 ---
@@ -32,9 +32,20 @@ REC="$SKILL_DIR/assets/record.py"
 ## Workflow
 
 1. **Frame the video.** Get or infer: the app URL (it must already be running — start it if the
-   user asks), the audience (recruiter, customer, internal team), the target length (default 2
-   minutes), and the 3–5 things the viewer must remember. If the app needs a login, see
-   *Logged-in apps* below.
+   user asks), the audience (recruiter, customer, internal team), the **length**, and the 1–5
+   things the viewer must remember. If the app needs a login, see *Logged-in apps* below.
+   Length follows the purpose, not a fixed rule. Use the user's number if they give one or a
+   platform imposes one; otherwise pick from this table and say which you picked:
+
+   | Purpose | `target_seconds` | Steps |
+   |---|---|---|
+   | Teaser / social post / one feature | 30–45 | 3–4 |
+   | Single feature or bug-fix walkthrough, PR demo | 60–90 | 4–7 |
+   | **Product demo, submission, portfolio (default)** | **120** | 8–10 |
+   | Internal walkthrough, onboarding, training | 180–300 | 12–20 |
+
+   Shorter is better when in doubt: a small project padded to 2 minutes reads as padding. Past
+   ~5 minutes, split into several videos.
 2. **Find stable selectors.** Read the app's HTML/templates (or open it with Playwright) and pick
    selectors that will not shift: ids, `data-*` attributes, distinctive classes. Note which
    elements need a click before they render (tabs, dialogs, lazy panels).
@@ -42,9 +53,10 @@ REC="$SKILL_DIR/assets/record.py"
    Format: [references/script-format.md](references/script-format.md). Narration rules:
    [references/narration.md](references/narration.md) — problem first, one idea per step, numbers
    written the way they should be spoken, ~300 words for 2 minutes at speed 1.2.
-4. **Check the timing** — `uv run "$REC" check demo.json`. It voices every step (no browser) and
-   prints per-step seconds and the estimated length. Trim words until it fits the target; this
-   is far cheaper than re-recording.
+4. **Check the timing** — `uv run "$REC" check demo.json`. It voices every step (no browser),
+   prints per-step seconds and the estimated length, and compares it with `target_seconds`
+   (on target within ±10%, else how many words to cut or add). Adjust words until it fits; this is
+   far cheaper than re-recording. Under target is fine when the story is complete — never pad.
 5. **Record** — `uv run "$REC" record demo.json --frames`. Prints each step's start time and
    writes `<output>.mp4` plus `<output>-frames/stepNN.png` (one frame ~1 s into each step).
 6. **Verify before handing over.** Look at every frame: is the thing the narration talks about

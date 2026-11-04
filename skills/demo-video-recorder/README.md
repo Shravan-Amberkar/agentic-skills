@@ -8,7 +8,8 @@ natural neural voiceover, on-screen captions, and audio that lines up with the s
   CPU. No cloud TTS, no account, no upload.
 - **Browser:** Playwright + Chromium, any viewport.
 - **Mux:** ffmpeg places each narration clip at the moment its step starts.
-- **Fit the length first:** `check` voices the script and prints the timing before you record.
+- **Any length:** set `target_seconds` (default 120 — a 2-minute demo; 30–45 s teasers to 5-minute
+  walkthroughs). `check` voices the script and tells you how far off you are before you record.
 - **Verify:** `--frames` saves one frame per step so you (or the agent) can check what was on
   screen.
 
@@ -43,6 +44,7 @@ A minimal script:
 {
   "url": "http://127.0.0.1:3000/",
   "output": "demo.mp4",
+  "target_seconds": 60,
   "steps": [
     {"say": "Finance teams lose a day every month matching bank credits by hand.",
      "caption": "The month-end problem", "actions": [{"top": true}]},

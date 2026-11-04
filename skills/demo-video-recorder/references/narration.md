@@ -1,6 +1,12 @@
 # Writing the narration
 
-## Shape of a 2-minute demo (8–10 steps, ~300 words)
+## Shape of a demo
+
+Words scale with length: ~2.6 words per second at speed 1.2, so 30 s ≈ 75 words, 60 s ≈ 150,
+2 min ≈ 300, 5 min ≈ 750. The shape below is for the default 2-minute demo (8–10 steps); for a
+30–60 s video keep only steps 1, one moment from 3, and 5.
+
+### 2 minutes (8–10 steps, ~300 words)
 
 1. **The problem, for whom** (1 step). "Small brands lose disputes they should win." No feature
    names yet.
@@ -25,5 +31,6 @@
 
 ## Fitting the length
 
-`check` prints seconds per step. At speed 1.2, `am_michael` speaks ~2.6 words per second, so
-2 minutes ≈ 300 words. Cut words, not steps; raise `speed` only up to ~1.25.
+Set `target_seconds` in the script. `check` prints seconds per step and whether you are on
+target, with roughly how many words to cut or add. Cut words before steps; raise `speed` only up
+to ~1.25. Being under target is fine — don't pad a short story.

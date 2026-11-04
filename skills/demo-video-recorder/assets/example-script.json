@@ -4,6 +4,7 @@
   "output": "example-demo.mp4",
   "voice": "am_michael",
   "speed": 1.2,
+  "target_seconds": 15,
   "steps": [
     {
       "say": "This is a narrated demo recorded by the demo video recorder skill. Every step pairs a line of narration with what happens on screen.",

@@ -13,6 +13,7 @@ A JSON object. Keys starting with `_` are notes and ignored; any other unknown k
 | `pad` | `0.35` | Seconds of silence after each narration line. |
 | `tail_ms` | `800` | Hold on the last frame. |
 | `captions` | `true` | Show each step's caption at the bottom of the page. |
+| `target_seconds` | `120` | Intended length. `check` and `record` report on/over/under (±10% counts as on target). |
 | `storage_state` | none | Playwright session file for logged-in apps (relative to the script). |
 | `setup` | `[]` | Actions run after load and **cut from the video** (dismiss banners, pick a tenant). |
 | `steps` | required | List of steps, below. |

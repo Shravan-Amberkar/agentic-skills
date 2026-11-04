@@ -39,9 +39,11 @@ MODEL_FILES = {  # name -> (url, sha256)
 }
 # Kokoro voice id prefix -> espeak language
 LANGS = {"a": "en-us", "b": "en-gb", "h": "hi", "e": "es", "f": "fr-fr", "i": "it", "j": "ja", "p": "pt-br", "z": "cmn"}
-DEFAULTS = {"viewport": [1440, 900], "voice": "am_michael", "speed": 1.2, "pad": 0.35, "tail_ms": 800, "captions": True}
+DEFAULTS = {"viewport": [1440, 900], "voice": "am_michael", "speed": 1.2, "pad": 0.35, "tail_ms": 800, "captions": True,
+            "target_seconds": 120}
+TOLERANCE = 0.1  # within 10% of the target counts as on target
 TOP_KEYS = {"url", "output", "viewport", "voice", "lang", "speed", "pad", "tail_ms", "captions", "storage_state",
-            "setup", "steps"}
+            "target_seconds", "setup", "steps"}
 ACTIONS = {"goto", "click", "fill", "type", "press", "hover", "scroll", "top", "wait", "wait_for", "eval"}
 ACTION_EXTRAS = {"text", "selector", "block", "delay"}
 
@@ -97,6 +99,9 @@ def validate(s: dict) -> dict:
             action_kind(a)
     for a in s.get("setup", []):
         action_kind(a)
+    t = s.get("target_seconds", DEFAULTS["target_seconds"])
+    if not isinstance(t, (int, float)) or isinstance(t, bool) or t <= 0:
+        raise ScriptError("'target_seconds' must be a positive number")
     out = {**DEFAULTS, **s}
     out.setdefault("output", "demo.mp4")
     out.setdefault("lang", LANGS.get(out["voice"][:1], "en-us"))
@@ -162,6 +167,21 @@ def synthesize(script: dict, work: Path) -> list[tuple[Path, float]]:
         dur = v.speak(st["say"], p)
         clips.append((p if p.exists() else p.with_suffix(".aiff"), dur))
     return clips
+
+
+def mmss(sec: float) -> str:
+    return f"{int(sec // 60)}:{int(round(sec % 60)):02d}"
+
+
+def fit(total: float, target: float) -> str:
+    """One line comparing a length to the target, with the words to cut or add at ~2.6 words/s."""
+    diff = total - target
+    if abs(diff) <= target * TOLERANCE:
+        return f"on target ({mmss(total)} vs {mmss(target)})"
+    words = int(abs(diff) * 2.6)
+    if diff > 0:
+        return f"OVER target by {abs(diff):.0f}s ({mmss(total)} vs {mmss(target)}): cut ~{words} words or a step"
+    return f"UNDER target by {abs(diff):.0f}s ({mmss(total)} vs {mmss(target)}): fine if the story is complete, else add ~{words} words"
 
 
 # --------------------------------------------------------------------------- browser
@@ -262,7 +282,7 @@ def record(script: dict, base_dir: Path, frames: bool) -> Path:
         browser.close()
 
     subprocess.run(ffmpeg_args(video, clips, t0 - t_video, total, out), check=True)
-    print(f"\n{out}  ({total:.0f} s)")
+    print(f"\n{out}  ({mmss(total)})  {fit(total, script['target_seconds'])}")
     if frames:
         fdir = out.with_name(out.stem + "-frames")
         fdir.mkdir(exist_ok=True)
@@ -286,7 +306,8 @@ def cmd_check(script: dict) -> None:
         words = len(st["say"].split())
         print(f"  step {i:2d}  {seg:5.1f}s  {words:3d} words  {st.get('caption', '')}")
     total += script["tail_ms"] / 1000
-    print(f"\nestimated length: {int(total // 60)}:{int(total % 60):02d}  ({len(voiced)} steps, voice {script['voice']})")
+    print(f"\nestimated length: {mmss(total)}  ({len(voiced)} steps, voice {script['voice']})")
+    print(fit(total, script["target_seconds"]))
     shutil.rmtree(work, ignore_errors=True)
 
 
