@@ -10,3 +10,8 @@ npm-debug.log*
 
 # Local agent caches
 .claude/
+__pycache__/
+*.pyc
+voice-samples/
+*-frames/
+auth.json

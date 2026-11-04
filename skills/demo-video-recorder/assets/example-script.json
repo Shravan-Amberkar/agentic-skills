@@ -1,0 +1,19 @@
+{
+  "_about": "Minimal working example against a public page. Copy it, point 'url' at your running app, and rewrite the steps.",
+  "url": "https://example.com/",
+  "output": "example-demo.mp4",
+  "voice": "am_michael",
+  "speed": 1.2,
+  "steps": [
+    {
+      "say": "This is a narrated demo recorded by the demo video recorder skill. Every step pairs a line of narration with what happens on screen.",
+      "caption": "One step = one line of narration + on-screen actions",
+      "actions": [{"top": true}]
+    },
+    {
+      "say": "Actions can scroll to an element, click, type, or wait. Here it hovers the link at the bottom of the page.",
+      "caption": "Scroll, click, type, hover, wait",
+      "actions": [{"scroll": "a", "block": "center"}, {"hover": "a"}]
+    }
+  ]
+}
