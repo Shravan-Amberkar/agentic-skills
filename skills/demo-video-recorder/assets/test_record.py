@@ -70,6 +70,16 @@ class Target(unittest.TestCase):
         self.assertIn("UNDER target", record.fit(30, 60))
 
 
+class Models(unittest.TestCase):
+    def test_every_file_comes_from_the_pinned_release(self):
+        # Regression: the URLs once pointed at model-files-v1.0 while the onnx checksum was
+        # model-files-v1.1's, so every fresh download failed verification.
+        self.assertRegex(record.MODEL_RELEASE, r"^https://github\.com/[^/]+/[^/]+/releases/download/[^/]+/$")
+        self.assertEqual(set(record.MODEL_FILES), {"kokoro-v1.0.onnx", "voices-v1.0.bin"})
+        for sha in record.MODEL_FILES.values():
+            self.assertRegex(sha, r"^[0-9a-f]{64}$")
+
+
 class Ffmpeg(unittest.TestCase):
     def test_trims_video_and_places_clips(self):
         args = record.ffmpeg_args(Path("v.webm"), [(Path("a.wav"), 0.0), (Path("b.wav"), 7.25)], 1.5, 20.0, Path("o.mp4"))
